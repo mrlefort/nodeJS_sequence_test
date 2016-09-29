@@ -29,7 +29,7 @@ sequelize.authenticate().then(function (err) {
 
 
 var Role = sequelize.define('Roles', {
-    Rolename: {
+    roleName: {
         type: Sequelize.STRING
     }
 }, {
@@ -59,9 +59,6 @@ Email: {
 Date: {
         type: Sequelize.DATE // here we decide parameters for this field in the table
     },
-Role: {
-        type: Sequelize.STRING // here we decide parameters for this field in the table
-    },
 Birthday: {
         type: Sequelize.DATE // here we decide parameters for this field in the table
     },
@@ -74,7 +71,6 @@ Sex: {
 
 });
 
-User.belongsTo(Role, {as: 'role'});
 
 User.sync(); // executes the command from above and inserts a new table into the database
 // afslut oprettelse af en ny tabel
@@ -82,7 +78,7 @@ User.sync(); // executes the command from above and inserts a new table into the
 
 // done with insert
 
-
+// bar(newUser);
 foo(newUser);
 
 function foo(newUser)
@@ -91,18 +87,26 @@ return sequelize.transaction(function (t) {
 
     // chain all your queries here. make sure you return them.
     return User.create({
-        UserName : newUser.UserName,
+        UserName: newUser.UserName,
         FirstName: newUser.FirstName,
         lastName: newUser.LastName,
-        Email : newUser.Email,
-        Date : newUser.Date,
-        Birthday : newUser.Birthday,
-        Sex : newUser.Sex
+        Email: newUser.Email,
+        Date: newUser.Date,
+        Birthday: newUser.Birthday,
+        Sex: newUser.Sex,
+    //     Role: [{
+    //         roleName: newUser.Role
+    //     }]
+    //
+    // }, {
+    //     include: [ Role ]
+    }, {transaction: t})
 
 
-    }, return Role.create({Role: newUser.Role}),   {transaction: t}) // kom her til
 
-}).then(function (result) {
+
+
+    }).then(function (result) {
     console.log("Transaction has been committed");
     // Transaction has been committed
     // result is whatever the result of the promise chain returned to the transaction callback
@@ -111,5 +115,30 @@ return sequelize.transaction(function (t) {
     // Transaction has been rolled back
     // err is whatever rejected the promise chain returned to the transaction callback
 });
+}
+
+function bar(newUser)
+{
+    return sequelize.transaction(function (t) {
+
+        // chain all your queries here. make sure you return them.
+        return Role.create({
+            roleName: newUser.Role
+
+        }, {transaction: t})
+
+
+
+
+
+    }).then(function (result) {
+        console.log("Transaction has been committed");
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+    }).catch(function (err) {
+        console.log(err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+    });
 }
 
